@@ -1,5 +1,5 @@
 import { component$, Slot } from '@builder.io/qwik';
-import type { RequestHandler } from '@builder.io/qwik-city';
+import { Link, useLocation, type RequestHandler, useContent } from '@builder.io/qwik-city';
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -13,5 +13,16 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
 };
 
 export default component$(() => {
-  return <Slot />;
+  const loc = useLocation()
+  const content = useContent()
+  return <div>
+    <ul class="nav nav-underline">
+      {content.menu?.items?.map(i => <li key={i.href} class="nav-item">
+        <Link href={i.href} class={["nav-link", { "active": i.href == loc.url.pathname }]}>
+          {i.text}
+        </Link>
+      </li>)}
+    </ul>
+    <Slot />
+  </div>;
 });
