@@ -16,6 +16,7 @@
     "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
     "watch.sw": "vite build -c vite.service-worker.ts -w -m development",
     "build.sw": "vite build -c vite.service-worker.ts",
+    "build.bs.css": "sass --no-source-map ./public/bootstrap.scss:./src/bootstrap.css",
     "dev.ext": "rmdir /s /q dist && concurrently --raw \"npm run dev\" \"npm run watch.sw\" \"node delegate.js\"",
     "build.ext": "rmdir /s /q dist && npm run build && npm run build.sw && node transfrom.js",
     "fmt": "prettier --write .",
@@ -50,6 +51,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "node-html-parser": "^6.1.5",
-    "rollup-plugin-tsconfig-paths": "^1.5.1"
+    "rollup-plugin-tsconfig-paths": "^1.5.1",
+    "sass": "^1.64.1"
   }
 }

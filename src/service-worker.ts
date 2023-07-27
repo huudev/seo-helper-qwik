@@ -2,6 +2,8 @@
 /// <reference lib="WebWorker" />
 
 import { type ChromeMessageDTO, GET_CLIPBOARD, OFF_SCREEN, SERVICE_WORKER, sendChromeMsg } from "./common/chrome-message.dto";
+import { searchDefault } from "./common/search.service";
+import { termToSentences } from "./common/util.service";
 
 // export empty type because of tsc --isolatedModules flag
 export type { };
@@ -109,10 +111,7 @@ chrome.runtime.onMessage.addListener(async (msgObj: ChromeMessageDTO) => {
     }
     switch (msgObj.type) {
         case GET_CLIPBOARD:
-            const items: string[] = (msgObj.data as string).split(/\r\n|\n|\r/).map(item => item.trim()).filter(item => item !== '')
-            for (const text of items) {
-                await chrome.search.query({ disposition: "NEW_TAB", text })
-            }
+            searchDefault(termToSentences(msgObj.data))
             break
     }
 })

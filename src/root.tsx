@@ -2,7 +2,8 @@ import { component$ } from '@builder.io/qwik';
 import { QwikCityProvider, RouterOutlet } from '@builder.io/qwik-city';
 import { RouterHead } from './components/router-head/router-head';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+import './bootstrap.css'
 import './global.css';
 
 export default component$(() => {
