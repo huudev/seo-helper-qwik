@@ -20,5 +20,7 @@ export async function setSetting<T>({ key }: SettingEntry<T>, value: T): Promise
 
 export const SEARCH_EXCLUSION_LIST: SettingEntry<string[]> = { key: 'SEARCH_EXCLUSION_LIST', defVal: ['youtube.com', 'facebook.com'] }
 
+export const CSS_SELECTOR: SettingEntry<string[]> = { key: 'CSS_SELECTOR', defVal: [''] }
+
 export const EDITOR_HELPER_WARNING_COLOR: SettingEntry<string> = { key: 'EDITOR_HELPER_WARNING_COLOR', defVal: '#ff0000' }
 export const EDITOR_HELPER_WARNING_LENGTH: SettingEntry<number> = { key: 'EDITOR_HELPER_WARNING_LENGTH', defVal: 20 }

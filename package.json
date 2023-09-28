@@ -17,7 +17,7 @@
     "watch.sw": "vite build -c vite.service-worker.ts -w -m development",
     "build.sw": "vite build -c vite.service-worker.ts",
     "build.bs.css": "sass --no-source-map ./public/bootstrap.scss:./src/bootstrap.css",
-    "dev.ext": "rmdir /s /q dist && concurrently --raw \"npm run dev\" \"npm run watch.sw\" \"node delegate.js\"",
+    "dev.ext": "concurrently --raw \"npm run dev\" \"npm run watch.sw\" \"node delegate.js\"",
     "build.ext": "rmdir /s /q dist && npm run build && npm run build.sw && node transfrom.js",
     "fmt": "prettier --write .",
     "fmt.check": "prettier --check .",

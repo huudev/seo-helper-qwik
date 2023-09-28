@@ -1,29 +1,39 @@
 import { component$, useSignal, useStore } from "@builder.io/qwik";
 import { DocumentHead } from "@builder.io/qwik-city";
 import { getValues, required, useForm } from "@modular-forms/qwik";
+import { FetchAnchorForm, FetchAnchorResultInfo, Item, STATUS_FAIL, STATUS_PROCESSING, STATUS_SUCESS } from "~/common/fetch-anchor.dto";
 import { showSucessNoti } from "~/common/toast.service";
 import { termToSentences } from "~/common/util.service";
 import { cssSelectorValidate } from "~/common/validate";
+import FetchWorker from "../../web-worker-fetch-anchor?worker"
 
-type FetchAnchorForm = {
-    cssSelector: string;
-    pageUrls: string;
-};
+const store: Record<number, { resolve: (html: string) => void, reject: () => void }> = {};
+let count = 0;
 
-type Item = {
-    text: string;
-    url: string;
+
+let worker: Worker;
+
+// prevent browser auto load preload resouce when fetch in main thread
+export function getHtml(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const id = count++
+        store[id] = { resolve, reject }
+        if (worker == null) {
+            worker = new FetchWorker()
+            worker.addEventListener('message', e => {
+                const { id, data, err } = e.data
+                const record = store[id]
+                delete store[id]
+                if (err) {
+                    record.reject()
+                } else {
+                    record.resolve(data)
+                }
+            })
+        }
+        worker.postMessage({ id, url })
+    });
 }
-
-type FetchAnchorResultInfo = {
-    pageUrl: string;
-    items: Item[];
-    status: string;
-}
-
-const STATUS_PROCESSING = 'Đang xử lý'
-const STATUS_SUCESS = 'Thành công'
-const STATUS_FAIL = 'Thất bại'
 
 export default component$(() => {
     const [fetchAnchorForm, { Form, Field }] = useForm<FetchAnchorForm>({
@@ -67,8 +77,7 @@ export default component$(() => {
                         const pageUrls = termToSentences(formValue.pageUrls!)
                         await Promise.allSettled(pageUrls.map((pageUrl, idx) => {
                             state.fetchAnchorResults.push({ pageUrl: pageUrl, items: [], status: STATUS_PROCESSING });
-                            return fetch(pageUrl)
-                                .then(res => res.text())
+                            return getHtml(pageUrl)
                                 .then(html => {
                                     const parser = new DOMParser();
                                     const doc = parser.parseFromString(html, "text/html");
