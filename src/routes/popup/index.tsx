@@ -13,6 +13,7 @@ type SearchForm = {
 export default component$(() => {
   const [searchForm, { Form, Field }] = useForm<SearchForm>({
     loader: useSignal({ term: '', excludeSites: [] }),
+    validateOn: 'touched',
   });
   const state = useStore({ searchExclusionList: [] as string[] })
   useVisibleTask$(async () => {
@@ -26,9 +27,9 @@ export default component$(() => {
           validate={[required('Vui lòng nhập')]}
         >
           {(field, props) => (
-            <div class={['mt-3', { 'was-validated': searchForm.submitted }]}>
-              <label for="term" class="form-label">Điều kiện:</label>
-              <textarea {...props} class="form-control" id="term" value={field.value} rows={8} required></textarea>
+            <div class="mt-3">
+              <label for="term" class="form-label">Điều kiện <span class="text-danger">*</span></label>
+              <textarea {...props} class={["form-control", { 'is-invalid': (searchForm.submitted || field.touched) && field.error, 'is-valid': (searchForm.submitted || field.touched) && !field.error }]} id="term" value={field.value} rows={8} required></textarea>
               {field.error && <div class="invalid-feedback">{field.error}</div>}
             </div>
           )}
@@ -40,14 +41,14 @@ export default component$(() => {
             }
             const e = getValues(searchForm)
             searchGoogle(termToSentences(e.term!), e.excludeSites)
-          }}>Tìm kiếm google</button>
+          }} disabled={!searchForm.touched || searchForm.invalid}>Tìm kiếm google</button>
           <button class="btn btn-success" onClick$={() => {
             if (searchForm.invalid) {
               return;
             }
             const e = getValues(searchForm)
             searchDefault(termToSentences(e.term!))
-          }}>Tìm kiếm mặc định</button>
+          }} disabled={!searchForm.touched || searchForm.invalid}>Tìm kiếm mặc định</button>
         </div>
         <label class="mt-3 form-label">Danh sách loại trừ:</label>
         <div class="d-flex gap-3">

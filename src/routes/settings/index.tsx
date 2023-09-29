@@ -10,25 +10,26 @@ type SettingsForm = {
 export default component$(() => {
     const [settingsForm, { Form, Field, FieldArray }] = useForm<SettingsForm>({
         loader: useSignal({ searchExclusionList: [] }),
+        validateOn: 'touched',
         fieldArrays: ['searchExclusionList']
     });
     useVisibleTask$(async () => {
         const list = await getSetting(SEARCH_EXCLUSION_LIST);
-        setValues(settingsForm, 'searchExclusionList', list)
+        setValues(settingsForm, 'searchExclusionList', list, { shouldTouched: false });
     })
     return (
         <>
             <Form onSubmit$={e => {
                 setSetting(SEARCH_EXCLUSION_LIST, e.searchExclusionList)
             }} >
-                <button class="btn btn-primary mt-3">Lưu</button>
+                <button class="btn btn-primary mt-3" disabled={!settingsForm.touched || settingsForm.invalid}>Lưu</button>
                 <br />
                 <label class="mt-3 form-label">Danh sách loại trừ:</label>
                 <div>
                     <FieldArray name="searchExclusionList">
                         {
                             fieldArray => {
-                                return <div class={[{ 'was-validated': settingsForm.submitted }]}>
+                                return <div>
                                     {
                                         fieldArray.items.map((item, index) => (
                                             <div key={item} class="mt-3">
@@ -37,7 +38,7 @@ export default component$(() => {
                                                 ]}>
                                                     {(field, props) => <div>
                                                         <div class="d-flex gap-3">
-                                                            <input {...props} class="form-control" type="text" value={field.value} required />
+                                                            <input {...props} class={["form-control", { 'is-invalid': (settingsForm.submitted || field.touched) && field.error, 'is-valid': (settingsForm.submitted || field.touched) && !field.error }]} type="text" value={field.value} required />
                                                             <button type="button" class="btn btn-danger" onClick$={() => {
                                                                 remove(settingsForm, 'searchExclusionList', { at: index })
                                                             }}>Xoá</button>

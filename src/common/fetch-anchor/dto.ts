@@ -1,5 +1,6 @@
 export type FetchAnchorForm = {
     cssSelector: string;
+    urlFilter: string;
     pageUrls: string;
 };
 
