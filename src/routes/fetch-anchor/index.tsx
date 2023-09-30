@@ -4,15 +4,15 @@ import { getValues, required, setValue, useForm } from "@modular-forms/qwik";
 import type { FetchAnchorForm, FetchAnchorResultInfo, Item } from "~/common/fetch-anchor/dto";
 import { STATUS_FAIL, STATUS_PROCESSING, STATUS_SUCESS } from "~/common/fetch-anchor/dto";
 import { fetchHtml } from "~/common/fetch-anchor/fetch-html";
-import { FETCH_ANCHOR_CSS_SELECTOR, FETCH_ANCHOR_URL_FILTER, getSetting, setSetting } from "~/common/settings.service";
+import { FETCH_ANCHOR_CASE_SENSITIVITY_FILTER, FETCH_ANCHOR_CSS_SELECTOR, FETCH_ANCHOR_REGEX_FILTER, FETCH_ANCHOR_URL_FILTER, getSetting, setSetting } from "~/common/settings.service";
 import { showSucessNoti } from "~/common/toast.service";
 import { termToSentences } from "~/common/util.service";
 import { cssSelectorValidate } from "~/common/validate/css-selector.validate";
 import { regexValidate } from "~/common/validate/regex.validate";
 
 export default component$(() => {
-    const [fetchAnchorForm, { Form, Field }] = useForm<FetchAnchorForm>({
-        loader: useSignal({ cssSelector: '', pageUrls: '', urlFilter: '' }),
+    const [fetchAnchorForm, { Form, Field }] = useForm({
+        loader: useSignal<FetchAnchorForm>({ cssSelector: '', pageUrls: '', urlFilter: '', caseSensitivityFilter: false, regexFilter: false }),
         validateOn: 'touched',
     });
     const state = useStore({ fetchAnchorResults: [] as FetchAnchorResultInfo[], fetching: false });
@@ -22,43 +22,74 @@ export default component$(() => {
 
         const urlFilter = await getSetting(FETCH_ANCHOR_URL_FILTER);
         setValue(fetchAnchorForm, 'urlFilter', urlFilter, { shouldTouched: false });
+
+        const caseSensitivityFilter = await getSetting(FETCH_ANCHOR_CASE_SENSITIVITY_FILTER);
+        setValue(fetchAnchorForm, 'caseSensitivityFilter', caseSensitivityFilter, { shouldTouched: false });
+
+        const regexFilter = await getSetting(FETCH_ANCHOR_REGEX_FILTER);
+        setValue(fetchAnchorForm, 'regexFilter', regexFilter, { shouldTouched: false });
     });
     return (
         <>
             <Form>
-                <Field
-                    name="cssSelector"
-                    validate={[required('Vui lòng nhập'), cssSelectorValidate('Cú pháp không hợp lệ')]}>
-                    {(field, props) => (
-                        <div class="mt-3">
-                            <label for="cssSelector" class="form-label">Truy vấn css <span class="text-danger">*</span></label>
-                            <textarea {...props} class={["form-control", { 'is-invalid': (fetchAnchorForm.submitted || field.touched) && field.error, 'is-valid': (fetchAnchorForm.submitted || field.touched) && !field.error }]} id="cssSelector" value={field.value} rows={2}></textarea>
-                            {field.error && <div class="invalid-feedback">{field.error}</div>}
-                        </div>
-                    )}
-                </Field>
-                <Field
-                    name="urlFilter"
-                    validate={[regexValidate('Cú pháp không hợp lệ')]}>
-                    {(field, props) => (
-                        <div class="mt-3">
-                            <label for="urlFilter" class="form-label">Lọc liên kết</label>
-                            <input {...props} class={["form-control", { 'is-invalid': (fetchAnchorForm.submitted || field.touched) && field.error, 'is-valid': (fetchAnchorForm.submitted || field.touched) && !field.error }]} id="urlFilter" value={field.value} />
-                            {field.error && <div class="invalid-feedback">{field.error}</div>}
-                        </div>
-                    )}
-                </Field>
-                <Field
-                    name="pageUrls"
-                    validate={[required('Vui lòng nhập')]}>
-                    {(field, props) => (
-                        <div class="mt-3">
-                            <label for="pageUrls" class="form-label">Danh sách liên kết của các trang <span class="text-danger">*</span></label>
-                            <textarea {...props} class={["form-control", { 'is-invalid': (fetchAnchorForm.submitted || field.touched) && field.error, 'is-valid': (fetchAnchorForm.submitted || field.touched) && !field.error }]} id="pageUrls" value={field.value} rows={8} required></textarea>
-                            {field.error && <div class="invalid-feedback">{field.error}</div>}
-                        </div>
-                    )}
-                </Field>
+                <div class="mt-3">
+                    <label for="cssSelector" class="form-label">Truy vấn css <span class="text-danger">*</span></label>
+                    <Field
+                        name="cssSelector"
+                        validate={[required('Vui lòng nhập'), cssSelectorValidate('Cú pháp không hợp lệ')]}>
+                        {(field, props) => (
+                            <>
+                                <textarea {...props} class={["form-control", { 'is-invalid': (fetchAnchorForm.submitted || field.touched) && field.error, 'is-valid': (fetchAnchorForm.submitted || field.touched) && !field.error }]} id="cssSelector" value={field.value} rows={2}></textarea>
+                                {field.error && <div class="invalid-feedback">{field.error}</div>}
+                            </>
+                        )}
+                    </Field>
+                </div>
+                <div class="mt-3">
+                    <label for="urlFilter" class="form-label">Lọc liên kết</label>
+                    <div class="input-group">
+                        <Field
+                            name="urlFilter"
+                            validate={[regexValidate('Cú pháp không hợp lệ')]}>
+                            {(field, props) => (
+                                <>
+                                    <input {...props} class={["form-control", { 'is-invalid': (fetchAnchorForm.submitted || field.touched) && field.error, 'is-valid': (fetchAnchorForm.submitted || field.touched) && !field.error }]} id="urlFilter" value={field.value} />
+                                    <div class="input-group-text">
+                                        <div class="form-check">
+                                            <Field name="caseSensitivityFilter" type="boolean">
+                                                {(field, props) => <input {...props} class="form-check-input" type="checkbox" checked={field.value} id="caseSensitivityFilter" />}
+                                            </Field>
+                                            <label class="form-check-label" for="caseSensitivityFilter">Phân biệt hoa thường</label>
+                                        </div>
+                                    </div>
+                                    <div class="input-group-text">
+                                        <div class="form-check">
+                                            <Field name="regexFilter" type="boolean">
+                                                {(field, props) => <input {...props} class="form-check-input" type="checkbox" checked={field.value} id="regexFilter" />}
+                                            </Field>
+                                            <label class="form-check-label" for="regexFilter">Biểu thức</label>
+                                        </div>
+                                    </div>
+                                    {field.error && <div class="invalid-feedback">{field.error}</div>}
+                                </>
+                            )}
+                        </Field>
+                    </div>
+
+                </div>
+                <div class="mt-3">
+                    <label for="pageUrls" class="form-label">Danh sách liên kết của các trang <span class="text-danger">*</span></label>
+                    <Field
+                        name="pageUrls"
+                        validate={[required('Vui lòng nhập')]}>
+                        {(field, props) => (
+                            <>
+                                <textarea {...props} class={["form-control", { 'is-invalid': (fetchAnchorForm.submitted || field.touched) && field.error, 'is-valid': (fetchAnchorForm.submitted || field.touched) && !field.error }]} id="pageUrls" value={field.value} rows={8} required></textarea>
+                                {field.error && <div class="invalid-feedback">{field.error}</div>}
+                            </>
+                        )}
+                    </Field>
+                </div>
                 <div class="d-flex mt-3 gap-3">
                     <button class="btn btn-primary" onClick$={async () => {
                         if (fetchAnchorForm.invalid) {
@@ -66,24 +97,34 @@ export default component$(() => {
                         }
                         state.fetching = true;
                         state.fetchAnchorResults = [];
-                        const formValue = getValues(fetchAnchorForm);
-                        setSetting(FETCH_ANCHOR_CSS_SELECTOR, formValue.cssSelector);
-                        setSetting(FETCH_ANCHOR_URL_FILTER, formValue.urlFilter);
-                        const pageUrls = termToSentences(formValue.pageUrls!)
-                        await Promise.allSettled(pageUrls.map((pageUrl, idx) => {
+                        const { cssSelector, urlFilter, caseSensitivityFilter, regexFilter, pageUrls } = getValues(fetchAnchorForm);
+                        console.log('caseSensitivityFilter', caseSensitivityFilter)
+                        console.log('regexFilter', regexFilter)
+                        setSetting(FETCH_ANCHOR_CSS_SELECTOR, cssSelector);
+                        setSetting(FETCH_ANCHOR_URL_FILTER, urlFilter);
+                        setSetting(FETCH_ANCHOR_CASE_SENSITIVITY_FILTER, caseSensitivityFilter);
+                        setSetting(FETCH_ANCHOR_REGEX_FILTER, regexFilter);
+
+                        const listPageUrl = termToSentences(pageUrls!);
+
+                        let regex: RegExp = null as unknown as RegExp;
+                        if (regexFilter && urlFilter != '') {
+                            let flags = 'g';
+                            if (!caseSensitivityFilter) {
+                                flags += 'i'
+                            }
+                            regex = new RegExp(urlFilter!, flags);
+                        }
+                        await Promise.allSettled(listPageUrl.map((pageUrl, idx) => {
                             state.fetchAnchorResults.push({ pageUrl: pageUrl, items: [], status: STATUS_PROCESSING });
                             return fetchHtml(pageUrl)
                                 .then(html => {
                                     const parser = new DOMParser();
                                     const doc = parser.parseFromString(html, "text/html");
-                                    const elements = doc.querySelectorAll(formValue.cssSelector!);
+                                    const elements = doc.querySelectorAll(cssSelector!);
                                     const items: Item[] = [];
                                     const urlParser = new URL(pageUrl);
 
-                                    let regex = null;
-                                    if (formValue.urlFilter != '') {
-                                        regex = new RegExp(formValue.urlFilter!, 'g')
-                                    }
                                     for (let i = 0; i < elements.length; ++i) {
                                         const element = elements[i];
                                         if (element instanceof HTMLAnchorElement) {
@@ -94,10 +135,20 @@ export default component$(() => {
                                             const text = (element.textContent ?? '').trim().replace(/\n|\t/g, ' ');
                                             const url = element.href;
                                             if (text && url && !url.startsWith('javascript:void(')) {
-                                                if (regex) {
-                                                    regex.lastIndex = 0;
-                                                    if (regex.test(url)) {
-                                                        items.push({ text, url })
+                                                if (urlFilter) {
+                                                    if (regexFilter) {
+                                                        regex.lastIndex = 0;
+                                                        if (regex.test(url)) {
+                                                            items.push({ text, url })
+                                                        }
+                                                    } else if (caseSensitivityFilter) {
+                                                        if (url.indexOf(urlFilter) != -1) {
+                                                            items.push({ text, url })
+                                                        }
+                                                    } else {
+                                                        if (url.toLocaleLowerCase().indexOf(urlFilter.toLocaleLowerCase()) != -1) {
+                                                            items.push({ text, url })
+                                                        }
                                                     }
                                                 } else {
                                                     items.push({ text, url })

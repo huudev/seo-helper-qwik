@@ -2,6 +2,8 @@ export type FetchAnchorForm = {
     cssSelector: string;
     urlFilter: string;
     pageUrls: string;
+    regexFilter: boolean;
+    caseSensitivityFilter: boolean;
 };
 
 export type Item = {

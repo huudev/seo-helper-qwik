@@ -8,8 +8,8 @@ type SettingsForm = {
 };
 
 export default component$(() => {
-    const [settingsForm, { Form, Field, FieldArray }] = useForm<SettingsForm>({
-        loader: useSignal({ searchExclusionList: [] }),
+    const [settingsForm, { Form, Field, FieldArray }] = useForm({
+        loader: useSignal<SettingsForm>({ searchExclusionList: [] }),
         validateOn: 'touched',
         fieldArrays: ['searchExclusionList']
     });

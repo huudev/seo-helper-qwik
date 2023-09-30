@@ -11,8 +11,8 @@ type SearchForm = {
 };
 
 export default component$(() => {
-  const [searchForm, { Form, Field }] = useForm<SearchForm>({
-    loader: useSignal({ term: '', excludeSites: [] }),
+  const [searchForm, { Form, Field }] = useForm({
+    loader: useSignal<SearchForm>({ term: '', excludeSites: [] }),
     validateOn: 'touched',
   });
   const state = useStore({ searchExclusionList: [] as string[] })
