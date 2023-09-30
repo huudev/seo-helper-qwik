@@ -5,6 +5,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(() => {
   return {
+    build: {
+      target: 'esnext'
+    },
     plugins: [qwikCity(), qwikVite({ devTools: { clickToSource: false } }), tsconfigPaths()],
     preview: {
       headers: {

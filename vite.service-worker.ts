@@ -6,6 +6,7 @@ import tsConfigPaths from 'rollup-plugin-tsconfig-paths';
 export default defineConfig(env => {
     return {
         build: {
+            target: 'esnext',
             emptyOutDir: false,
             sourcemap: env.mode != 'production',
             rollupOptions: {
