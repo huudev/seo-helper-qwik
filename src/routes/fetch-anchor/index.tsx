@@ -4,7 +4,7 @@ import { getValues, required, setValue, useForm } from "@modular-forms/qwik";
 import type { FetchAnchorForm, FetchAnchorResultInfo, Item } from "~/common/fetch-anchor/dto";
 import { STATUS_FAIL, STATUS_PROCESSING, STATUS_SUCESS } from "~/common/fetch-anchor/dto";
 import { fetchHtml } from "~/common/fetch-anchor/fetch-html";
-import { FETCH_ANCHOR_CASE_SENSITIVITY_FILTER, FETCH_ANCHOR_CSS_SELECTOR, FETCH_ANCHOR_REGEX_FILTER, FETCH_ANCHOR_URL_FILTER, getSetting, setSetting } from "~/common/settings.service";
+import { FETCH_ANCHOR_CSS_SELECTOR, FETCH_ANCHOR_REGEX_FILTER, FETCH_ANCHOR_URL_FILTER, getSetting, setSetting } from "~/common/settings.service";
 import { showSucessNoti } from "~/common/toast.service";
 import { termToSentences } from "~/common/util.service";
 import { cssSelectorValidate } from "~/common/validate/css-selector.validate";
@@ -12,7 +12,7 @@ import { regexValidate } from "~/common/validate/regex.validate";
 
 export default component$(() => {
     const [fetchAnchorForm, { Form, Field }] = useForm({
-        loader: useSignal<FetchAnchorForm>({ cssSelector: '', pageUrls: '', urlFilter: '', caseSensitivityFilter: false, regexFilter: false }),
+        loader: useSignal<FetchAnchorForm>({ cssSelector: '', pageUrls: '', urlFilter: '', regexFilter: false }),
         validateOn: 'touched',
     });
     const state = useStore({ fetchAnchorResults: [] as FetchAnchorResultInfo[], fetching: false });
@@ -22,9 +22,6 @@ export default component$(() => {
 
         const urlFilter = await getSetting(FETCH_ANCHOR_URL_FILTER);
         setValue(fetchAnchorForm, 'urlFilter', urlFilter, { shouldTouched: false });
-
-        const caseSensitivityFilter = await getSetting(FETCH_ANCHOR_CASE_SENSITIVITY_FILTER);
-        setValue(fetchAnchorForm, 'caseSensitivityFilter', caseSensitivityFilter, { shouldTouched: false });
 
         const regexFilter = await getSetting(FETCH_ANCHOR_REGEX_FILTER);
         setValue(fetchAnchorForm, 'regexFilter', regexFilter, { shouldTouched: false });
@@ -54,14 +51,6 @@ export default component$(() => {
                             {(field, props) => (
                                 <>
                                     <input {...props} class={["form-control", { 'is-invalid': (fetchAnchorForm.submitted || field.touched) && field.error, 'is-valid': (fetchAnchorForm.submitted || field.touched) && !field.error }]} id="urlFilter" value={field.value} />
-                                    <div class="input-group-text">
-                                        <div class="form-check">
-                                            <Field name="caseSensitivityFilter" type="boolean">
-                                                {(field, props) => <input {...props} class="form-check-input" type="checkbox" checked={field.value} id="caseSensitivityFilter" />}
-                                            </Field>
-                                            <label class="form-check-label" for="caseSensitivityFilter">Phân biệt hoa thường</label>
-                                        </div>
-                                    </div>
                                     <div class="input-group-text">
                                         <div class="form-check">
                                             <Field name="regexFilter" type="boolean">
@@ -97,12 +86,9 @@ export default component$(() => {
                         }
                         state.fetching = true;
                         state.fetchAnchorResults = [];
-                        const { cssSelector, urlFilter, caseSensitivityFilter, regexFilter, pageUrls } = getValues(fetchAnchorForm);
-                        console.log('caseSensitivityFilter', caseSensitivityFilter)
-                        console.log('regexFilter', regexFilter)
+                        const { cssSelector, urlFilter, regexFilter, pageUrls } = getValues(fetchAnchorForm);
                         setSetting(FETCH_ANCHOR_CSS_SELECTOR, cssSelector);
                         setSetting(FETCH_ANCHOR_URL_FILTER, urlFilter);
-                        setSetting(FETCH_ANCHOR_CASE_SENSITIVITY_FILTER, caseSensitivityFilter);
                         setSetting(FETCH_ANCHOR_REGEX_FILTER, regexFilter);
 
                         const listPageUrl = termToSentences(pageUrls!);
@@ -110,9 +96,6 @@ export default component$(() => {
                         let regex: RegExp = null as unknown as RegExp;
                         if (regexFilter && urlFilter != '') {
                             let flags = 'g';
-                            if (!caseSensitivityFilter) {
-                                flags += 'i'
-                            }
                             regex = new RegExp(urlFilter!, flags);
                         }
                         await Promise.allSettled(listPageUrl.map((pageUrl, idx) => {
@@ -141,12 +124,8 @@ export default component$(() => {
                                                         if (regex.test(url)) {
                                                             items.push({ text, url })
                                                         }
-                                                    } else if (caseSensitivityFilter) {
-                                                        if (url.indexOf(urlFilter) != -1) {
-                                                            items.push({ text, url })
-                                                        }
                                                     } else {
-                                                        if (url.toLocaleLowerCase().indexOf(urlFilter.toLocaleLowerCase()) != -1) {
+                                                        if (url.includes(urlFilter)) {
                                                             items.push({ text, url })
                                                         }
                                                     }

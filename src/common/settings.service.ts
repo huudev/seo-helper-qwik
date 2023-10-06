@@ -22,7 +22,6 @@ export const SEARCH_EXCLUSION_LIST: SettingEntry<string[]> = { key: 'SEARCH_EXCL
 
 export const FETCH_ANCHOR_CSS_SELECTOR: SettingEntry<string> = { key: 'FETCH_ANCHOR_CSS_SELECTOR', defVal: '' }
 export const FETCH_ANCHOR_URL_FILTER: SettingEntry<string> = { key: 'FETCH_ANCHOR_URL_FILTER', defVal: '' }
-export const FETCH_ANCHOR_CASE_SENSITIVITY_FILTER: SettingEntry<boolean> = { key: 'FETCH_ANCHOR_CASE_SENSITIVITY_FILTER', defVal: false }
 export const FETCH_ANCHOR_REGEX_FILTER: SettingEntry<boolean> = { key: 'FETCH_ANCHOR_REGEX_FILTER', defVal: false }
 
 export const EDITOR_HELPER_WARNING_COLOR: SettingEntry<string> = { key: 'EDITOR_HELPER_WARNING_COLOR', defVal: '#ff0000' }
