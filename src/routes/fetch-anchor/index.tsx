@@ -95,8 +95,7 @@ export default component$(() => {
 
                         let regex: RegExp = null as unknown as RegExp;
                         if (regexFilter && urlFilter != '') {
-                            let flags = 'g';
-                            regex = new RegExp(urlFilter!, flags);
+                            regex = new RegExp(urlFilter!, 'g');
                         }
                         await Promise.allSettled(listPageUrl.map((pageUrl, idx) => {
                             state.fetchAnchorResults.push({ pageUrl: pageUrl, items: [], status: STATUS_PROCESSING });

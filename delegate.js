@@ -19,7 +19,7 @@ app.get('*', async (req, res) => {
         return
     }
     let path = req.originalUrl;
-    path = path.replace(/.html$/g, '/')
+    path = path.replace(/index.html$/g, '/')
     const url = new URL(path, targetDomain)
     try {
         const targetRes = await axios.get(url, {

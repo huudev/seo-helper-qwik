@@ -8,7 +8,7 @@ export default defineConfig(() => {
     build: {
       target: 'esnext'
     },
-    plugins: [qwikCity(), qwikVite({ devTools: { clickToSource: false } }), tsconfigPaths()],
+    plugins: [qwikCity({ trailingSlash: false }), qwikVite({ devTools: { clickToSource: false } }), tsconfigPaths()],
     preview: {
       headers: {
         'Cache-Control': 'public, max-age=600',

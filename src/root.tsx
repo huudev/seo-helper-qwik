@@ -18,6 +18,7 @@ export default component$(() => {
     <QwikCityProvider>
       <head>
         <meta charSet="utf-8" />
+        <link rel="icon" href="/icon128.png" />
         <RouterHead />
       </head>
       <body lang="en" style="min-width: 600px;height: 400px;margin: 0">

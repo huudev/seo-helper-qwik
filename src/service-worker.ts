@@ -34,17 +34,23 @@ self.addEventListener('fetch', function (event: FetchEvent) {
 
     }
 
-    const checkReq = url.pathname.endsWith('popup.html') ? Promise.reject('R') : fetch(event.request.url)
-    event.respondWith(checkReq.catch(() => fetch(url, { headers: { Accept } }).then(res => {
+    event.respondWith(fetch(url, { headers: { Accept } }).then(res => {
         return new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers })
-        // if (url.pathname.endsWith('.js') || url.pathname.endsWith('.mjs')) {
-        //     return new Response(res.body, {
-        //         headers: new Headers({ 'Content-Type': 'application/javascript' })
-        //     })
-        // } else {
-        //     return res
-        // }
-    })))
+    }))
+
+
+    // const checkReq = url.pathname.endsWith('popup.html') ? Promise.reject('R') : fetch(event.request.url)
+    // event.respondWith(checkReq.catch(() => fetch(url, { headers: { Accept } }).then(res => {
+    //     return new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers })
+    //     // if (url.pathname.endsWith('.js') || url.pathname.endsWith('.mjs')) {
+    //     //     return new Response(res.body, {
+    //     //         headers: new Headers({ 'Content-Type': 'application/javascript' })
+    //     //     })
+    //     // } else {
+    //     //     return res
+    //     // }
+    // })))
+
     // if (!event.request.url.includes(chrome.runtime.id) || event.request.url.includes('.html')) {
     //     event.respondWith(fetch(event.request))
     // } else {
