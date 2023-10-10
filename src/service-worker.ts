@@ -17,9 +17,9 @@ self.addEventListener('fetch', function (event: FetchEvent) {
     if (url.pathname == '/') {
         return
     }
-    // if (!url.pathname.endsWith('popup.html')) {
-
-    // }
+    if (url.protocol != 'chrome-extension:') {
+        return
+    }
     url.protocol = 'http'
     url.hostname = 'localhost'
     url.port = '3000'

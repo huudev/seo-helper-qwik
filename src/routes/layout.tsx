@@ -1,4 +1,4 @@
-import { component$, Slot } from '@builder.io/qwik';
+import { component$, Slot, useSignal, useVisibleTask$ } from '@builder.io/qwik';
 import { Link, useLocation, type RequestHandler, useContent } from '@builder.io/qwik-city';
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
@@ -15,6 +15,17 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
 export default component$(() => {
   const loc = useLocation()
   const content = useContent()
+  const isShowOpenPopup = useSignal(false)
+
+  useVisibleTask$(()=> {
+    if (!window.opener) {
+      isShowOpenPopup.value = true;
+      return;
+    }
+
+    isShowOpenPopup.value = false;
+    window.opener.close()
+  })
   return <div>
     <div class="d-flex justify-content-between">
       <ul class="nav nav-underline">
@@ -24,7 +35,7 @@ export default component$(() => {
           </Link>
         </li>)}
       </ul>
-      <button title="Mở cửa sổ" type="button" class="btn btn-light" onClick$={() => {
+      <button title="Mở cửa sổ" type="button" class={["btn btn-light", {'d-none': !isShowOpenPopup.value}]} onClick$={() => {
         let url = location.href;
         const indexPath = '/index.html'
         if (!url.endsWith(indexPath)) {
@@ -33,7 +44,7 @@ export default component$(() => {
 
         chrome.windows.create({
           url,
-          type: "normal",
+          type: "popup",
           focused: true,
           setSelfAsOpener: true,
         });

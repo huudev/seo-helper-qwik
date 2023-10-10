@@ -149,6 +149,23 @@ export default component$(() => {
                         {state.fetching && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                         {" Lấy liên kết"}
                     </button>
+                    <button class="btn btn-info" disabled={!fetchAnchorForm.submitted || state.fetching}
+                        onClick$={() => {
+                            let textToCopy = '';
+                            const fetchAnchorResults = state.fetchAnchorResults;
+                            for (let i = 0; i < fetchAnchorResults.length; ++i) {
+                                const result = fetchAnchorResults[i];
+                                textToCopy += (i + 1) + '\t' + result.pageUrl + '\t' + result.status + '\t' + result.items.length + '\n'
+                            }
+                            navigator.clipboard.writeText(textToCopy).then(() => {
+                                showSucessNoti("Sao chép thành công");
+                            }).catch(e => {
+                                console.log(e);
+                            });
+                        }}>
+                        {state.fetching && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                        {" Sao chép bảng"}
+                    </button>
                     <button class="btn btn-success" disabled={!fetchAnchorForm.submitted || state.fetching}
                         onClick$={() => {
                             let textToCopy = ''
