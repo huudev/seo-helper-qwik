@@ -109,6 +109,9 @@ export default component$(() => {
                         if (regexFilter && urlFilter != '') {
                             regex = new RegExp(urlFilter!, 'g');
                         }
+
+                        const setUrls = new Set<string>()
+
                         await Promise.allSettled(listPageUrl.map((pageUrl, idx) => {
                             state.fetchAnchorResults.push({ pageUrl: pageUrl, items: [], status: STATUS_PROCESSING });
                             return fetchHtml(pageUrl)
@@ -138,10 +141,17 @@ export default component$(() => {
                                                         flag = url.includes(urlFilter)
                                                     }
                                                     if (urlNegativeFilter !== flag) {
-                                                        items.push({ text, url })
+                                                        if (!setUrls.has(url)) {
+                                                            setUrls.add(url)
+                                                            items.push({ text, url })
+                                                        }
+
                                                     }
                                                 } else {
-                                                    items.push({ text, url })
+                                                    if (!setUrls.has(url)) {
+                                                        setUrls.add(url)
+                                                        items.push({ text, url })
+                                                    }
                                                 }
                                             }
                                         }
