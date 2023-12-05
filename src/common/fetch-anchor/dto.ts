@@ -3,6 +3,7 @@ export type FetchAnchorForm = {
     urlFilter: string;
     pageUrls: string;
     regexFilter: boolean;
+    urlNegativeFilter: boolean;
 };
 
 export type Item = {

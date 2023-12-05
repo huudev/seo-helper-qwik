@@ -4,7 +4,7 @@ import { getValues, required, setValue, useForm } from "@modular-forms/qwik";
 import type { FetchAnchorForm, FetchAnchorResultInfo, Item } from "~/common/fetch-anchor/dto";
 import { STATUS_FAIL, STATUS_PROCESSING, STATUS_SUCESS } from "~/common/fetch-anchor/dto";
 import { fetchHtml } from "~/common/fetch-anchor/fetch-html";
-import { FETCH_ANCHOR_CSS_SELECTOR, FETCH_ANCHOR_REGEX_FILTER, FETCH_ANCHOR_URL_FILTER, getSetting, setSetting } from "~/common/settings.service";
+import { FETCH_ANCHOR_CSS_SELECTOR, FETCH_ANCHOR_REGEX_FILTER, FETCH_ANCHOR_URL_FILTER, FETCH_ANCHOR_URL_NEGATIVE_FILTER, getSetting, setSetting } from "~/common/settings.service";
 import { showSucessNoti } from "~/common/toast.service";
 import { termToSentences } from "~/common/util.service";
 import { cssSelectorValidate } from "~/common/validate/css-selector.validate";
@@ -12,7 +12,7 @@ import { regexValidate } from "~/common/validate/regex.validate";
 
 export default component$(() => {
     const [fetchAnchorForm, { Form, Field }] = useForm({
-        loader: useSignal<FetchAnchorForm>({ cssSelector: '', pageUrls: '', urlFilter: '', regexFilter: false }),
+        loader: useSignal<FetchAnchorForm>({ cssSelector: '', pageUrls: '', urlFilter: '', regexFilter: false, urlNegativeFilter: false }),
         validateOn: 'touched',
     });
     const state = useStore({ fetchAnchorResults: [] as FetchAnchorResultInfo[], fetching: false });
@@ -25,6 +25,9 @@ export default component$(() => {
 
         const regexFilter = await getSetting(FETCH_ANCHOR_REGEX_FILTER);
         setValue(fetchAnchorForm, 'regexFilter', regexFilter, { shouldTouched: false });
+
+        const urlNegativeFilter = await getSetting(FETCH_ANCHOR_URL_NEGATIVE_FILTER);
+        setValue(fetchAnchorForm, 'urlNegativeFilter', urlNegativeFilter, { shouldTouched: false });
     });
     return (
         <>
@@ -59,6 +62,14 @@ export default component$(() => {
                                             <label class="form-check-label" for="regexFilter">Biểu thức</label>
                                         </div>
                                     </div>
+                                    <div class="input-group-text">
+                                        <div class="form-check">
+                                            <Field name="urlNegativeFilter" type="boolean">
+                                                {(field, props) => <input {...props} class="form-check-input" type="checkbox" checked={field.value} id="urlNegativeFilter" />}
+                                            </Field>
+                                            <label class="form-check-label" for="urlNegativeFilter">Phủ định</label>
+                                        </div>
+                                    </div>
                                     {field.error && <div class="invalid-feedback">{field.error}</div>}
                                 </>
                             )}
@@ -86,10 +97,11 @@ export default component$(() => {
                         }
                         state.fetching = true;
                         state.fetchAnchorResults = [];
-                        const { cssSelector, urlFilter, regexFilter, pageUrls } = getValues(fetchAnchorForm);
+                        const { cssSelector, urlFilter, regexFilter, urlNegativeFilter, pageUrls } = getValues(fetchAnchorForm);
                         setSetting(FETCH_ANCHOR_CSS_SELECTOR, cssSelector);
                         setSetting(FETCH_ANCHOR_URL_FILTER, urlFilter);
                         setSetting(FETCH_ANCHOR_REGEX_FILTER, regexFilter);
+                        setSetting(FETCH_ANCHOR_URL_NEGATIVE_FILTER, urlNegativeFilter);
 
                         const listPageUrl = termToSentences(pageUrls!);
 
@@ -118,15 +130,15 @@ export default component$(() => {
                                             const url = element.href;
                                             if (text && url && !url.startsWith('javascript:void(')) {
                                                 if (urlFilter) {
+                                                    let flag = false
                                                     if (regexFilter) {
                                                         regex.lastIndex = 0;
-                                                        if (regex.test(url)) {
-                                                            items.push({ text, url })
-                                                        }
+                                                        flag = regex.test(url)
                                                     } else {
-                                                        if (url.includes(urlFilter)) {
-                                                            items.push({ text, url })
-                                                        }
+                                                        flag = url.includes(urlFilter)
+                                                    }
+                                                    if (urlNegativeFilter !== flag) {
+                                                        items.push({ text, url })
                                                     }
                                                 } else {
                                                     items.push({ text, url })
