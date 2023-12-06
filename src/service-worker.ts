@@ -34,6 +34,9 @@ self.addEventListener('fetch', function (event: FetchEvent) {
 
     }
 
+    if (url.pathname.endsWith('popup.html')) {
+        url.pathname = url.pathname.replace('popup.html', 'popup/index.html')
+    }
     event.respondWith(fetch(url, { headers: { Accept } }).then(res => {
         return new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers })
     }))

@@ -11,11 +11,6 @@ const contentToOrder = new Map()
 for (const loc of locs) {
     const page = loc.textContent.replace('https://yoursite.qwik.dev/', '').replace('/', '')
 
-    const manifestPath = path.join(outputDir, 'manifest.json');
-    const manifset = require(manifestPath);
-    manifset.action.default_popup = "popup/index.html"
-    fs.writeFileSync(manifestPath, JSON.stringify(manifset));
-
     const htmlPath = path.join(outputDir, page, 'index.html');
     const html = fs.readFileSync(htmlPath, { encoding: 'utf8', flag: 'r' })
     const root = parse(html, { comment: true });
@@ -38,3 +33,8 @@ for (const loc of locs) {
     }
     fs.writeFileSync(htmlPath, root.toString());
 }
+
+const manifestPath = path.join(outputDir, 'manifest.json');
+const manifset = require(manifestPath);
+manifset.action.default_popup = "popup/index.html"
+fs.writeFileSync(manifestPath, JSON.stringify(manifset));
