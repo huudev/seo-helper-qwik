@@ -110,8 +110,6 @@ export default component$(() => {
                             regex = new RegExp(urlFilter!, 'g');
                         }
 
-                        const setUrls = new Set<string>()
-
                         await Promise.allSettled(listPageUrl.map((pageUrl, idx) => {
                             state.fetchAnchorResults.push({ pageUrl: pageUrl, items: [], status: STATUS_PROCESSING });
                             return fetchHtml(pageUrl)
@@ -121,7 +119,7 @@ export default component$(() => {
                                     const elements = doc.querySelectorAll(cssSelector!);
                                     const items: Item[] = [];
                                     const urlParser = new URL(pageUrl);
-
+                                    const setUrls = new Set<string>()
                                     for (let i = 0; i < elements.length; ++i) {
                                         const element = elements[i];
                                         if (element instanceof HTMLAnchorElement) {
