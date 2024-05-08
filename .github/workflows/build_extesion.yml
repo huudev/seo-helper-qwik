@@ -23,5 +23,5 @@ jobs:
     - name: Generate release name
       id: release_file_name
       run: |
-          echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')${{ github.sha }}.zip" >> $$GITHUB_ENV
+          echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')${{ github.sha }}.zip" >> $GITHUB_ENV
     - run: echo "ket qua ${{ env.release_file_name }}"
