@@ -1,0 +1,43 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Build extension
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+    - name: Generate release name
+      id: release_file_name
+      run: |
+          echo "{release_file_name}={seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')${{ github.sha }}.zip}" >> $GITHUB_STATE
+    - run: echo "ket qua ${{ env.release_file_name }}"
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm i
+    - run: npm run build.ext
+    - name: Archive Release
+      uses: thedoctor0/zip-release@0.7.5
+      with:
+        filename: ${{ env.release_file_name }}
+        directory: dist
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: ${{ env.release_file_name }}
