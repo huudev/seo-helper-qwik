@@ -40,4 +40,4 @@ jobs:
     - uses: ncipollo/release-action@v1
       with:
         tag: ${{ env.release_file_name }}
-        artifacts: ${{ env.release_file_name }}
+        artifacts: dist/${{ env.release_file_name }}
