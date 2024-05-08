@@ -31,7 +31,7 @@ jobs:
     - name: Generate release name
       id: release_file_name
       run: |
-          echo "sha_short=$(git rev-parse --short HEAD)"
+          sha_short=$(git rev-parse --short HEAD)
           echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')_$sha_short.zip" >> $GITHUB_ENV
     - name: Archive Release
       uses: thedoctor0/zip-release@0.7.5
