@@ -20,11 +20,6 @@ jobs:
         node-version: [16.x]
 
     steps:
-    - name: Generate release name
-      id: release_file_name
-      run: |
-          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')_${{ env.sha_short }}.zip" >> $GITHUB_ENV
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
@@ -33,6 +28,11 @@ jobs:
         cache: 'npm'
     - run: npm i
     - run: npm run build.ext
+    - name: Generate release name
+      id: release_file_name
+      run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')_${{ env.sha_short }}.zip" >> $GITHUB_ENV
     - name: Archive Release
       uses: thedoctor0/zip-release@0.7.5
       with:
