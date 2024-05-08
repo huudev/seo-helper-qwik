@@ -24,4 +24,20 @@ jobs:
       id: release_file_name
       run: |
           echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')${{ github.sha }}.zip" >> $GITHUB_ENV
-    - run: echo "ket qua ${{ env.release_file_name }}"
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm i
+    - run: npm run build.ext
+    - name: Archive Release
+      uses: thedoctor0/zip-release@0.7.5
+      with:
+        filename: ${{ env.release_file_name }}
+        directory: dist
+    - uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ env.release_file_name }}
+        artifacts: ${{ env.release_file_name }}
