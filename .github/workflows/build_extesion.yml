@@ -23,7 +23,8 @@ jobs:
     - name: Generate release name
       id: release_file_name
       run: |
-          echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')${{ github.sha }}.zip" >> $GITHUB_ENV
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')_${{ env.sha_short }}.zip" >> $GITHUB_ENV
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
