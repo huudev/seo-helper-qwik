@@ -23,7 +23,7 @@ jobs:
     - name: Generate release name
       id: release_file_name
       run: |
-          echo "{release_file_name}={seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')${{ github.sha }}.zip}" >> $GITHUB_OUTPUT
+          echo "release_file_name=seo-helper-qwik_$(date +'%Y-%m-%d_%H%M%S')${{ github.sha }}.zip" >> $GITHUB_OUTPUT
     - run: echo "ket qua ${{ steps.release_file_name.outputs.release_file_name }}"
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
